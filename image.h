@@ -12,6 +12,7 @@ public:
     Image();
     void ApplyFunctionalFilter(FunctionalFilter& filter);
     void ApplyConvolutionFilter(ConvolutionFilter& filter);
+    void ApplyConvolutionFilter2(ConvolutionFilter& filter);
     QPixmap _QPixmap;
 };
 

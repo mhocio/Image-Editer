@@ -71,9 +71,48 @@ void Image::ApplyConvolutionFilter(ConvolutionFilter& filter)
                         newValue += *(bits+iter+channel);
                 }
 
-            *(newBits+iter+channel) = (int)(newValue / weight);
+            *(newBits+iter+channel) = qBound(0, (int)(newValue / weight), 255);
         }
     }
 
+    _QPixmap = QPixmap::fromImage(newImage);
+}
+
+void Image::ApplyConvolutionFilter2(ConvolutionFilter& filter)
+{
+    QImage image = _QPixmap.toImage();
+    uchar* bits = image.bits();
+
+    QImage newImage = _QPixmap.toImage();
+    uchar* newBits = newImage.bits();
+
+    int noChannels = 3;
+    int w = image.width();
+    int imageSize = image.byteCount();
+
+    // iterate through all bits(RGBA)
+    for (int iter = 0; iter < imageSize; iter += noChannels+1) {
+        // iterate RGB channels skipping A
+        for (int channel = 0; channel < noChannels; channel++) {
+            int weight = 0;
+            int newValue = 0;
+
+            for (int i = 0; i < filter.width; i++)
+                for (int j = 0; j < filter.height; j++) {
+
+                    int x = i - filter.anchor_x;
+                    int y = j - filter.anchor_y;
+
+                    weight += filter.filter[i][j];
+
+                    if (0 < iter +channel + 4*x + 4*y*w < imageSize)
+                        newValue += filter.filter[i][j] * *(bits+iter +channel + 4*x + 4*y*w);
+                    else
+                        newValue += *(bits+iter+channel);
+                }
+
+            *(newBits+iter+channel) = qBound(0, (int)(newValue / weight), 255);
+        }
+    }
     _QPixmap = QPixmap::fromImage(newImage);
 }

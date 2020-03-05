@@ -36,6 +36,8 @@ private slots:
 
     void on_resetImageButton_clicked();
 
+    void on_sharpenFilterButton_clicked();
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;
