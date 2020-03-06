@@ -20,14 +20,12 @@ SOURCES += \
     functionalfilter.cpp \
     image.cpp \
     main.cpp \
-    matrix.cpp \
     photoapp.cpp
 
 HEADERS += \
     convolutionfilter.h \
     functionalfilter.h \
     image.h \
-    matrix.h \
     photoapp.h
 
 FORMS += \

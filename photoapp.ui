@@ -139,7 +139,67 @@
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="7" column="1">
+           <item row="14" column="0">
+            <widget class="QSlider" name="horizontalSlider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="0" colspan="2">
+            <widget class="QPushButton" name="edgeDetectionFilterButton">
+             <property name="text">
+              <string>Edge Detection</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QPushButton" name="constrastFilterButton">
+             <property name="text">
+              <string>Contrast Enhancement</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0" colspan="2">
+            <widget class="QLabel" name="label_4">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Convolution Filters</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0" colspan="2">
+            <widget class="QPushButton" name="convolutionButton">
+             <property name="text">
+              <string>Blur</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QLabel" name="label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Function Filters</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="1">
             <widget class="QPushButton" name="pushButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -152,45 +212,38 @@
              </property>
             </widget>
            </item>
-           <item row="7" column="0">
-            <widget class="QSlider" name="horizontalSlider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QPushButton" name="inverseFilterButton">
-             <property name="text">
-              <string>Inverse Filter</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="2">
+           <item row="6" column="0" colspan="2">
             <widget class="QPushButton" name="gammaCorrectionButton">
              <property name="text">
               <string>Gamma Correction</string>
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QPushButton" name="convolutionButton">
+           <item row="10" column="0" colspan="2">
+            <widget class="QPushButton" name="sharpenFilterButton">
              <property name="text">
-              <string>Convolution Filter</string>
+              <string>Sharpen</string>
              </property>
             </widget>
            </item>
            <item row="3" column="0" colspan="2">
-            <widget class="QPushButton" name="constrastFilterButton">
+            <widget class="QPushButton" name="inverseFilterButton">
              <property name="text">
-              <string>Contrast Enhancement</string>
+              <string>Inverse</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QPushButton" name="brightnessCorrectionButton">
+           <item row="12" column="0" colspan="2">
+            <widget class="QPushButton" name="gaussianBlurFilterButton">
              <property name="text">
-              <string>Brightness Correction</string>
+              <string>Gaussian Blur</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
@@ -221,17 +274,31 @@
               <bool>false</bool>
              </property>
              <property name="default">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="flat">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QPushButton" name="sharpenFilterButton">
+           <item row="7" column="0" colspan="2">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QPushButton" name="brightnessCorrectionButton">
              <property name="text">
-              <string>Sharpen Filter</string>
+              <string>Brightness Correction</string>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="0" colspan="2">
+            <widget class="QPushButton" name="embossFilterButton">
+             <property name="text">
+              <string>Emboss (South)</string>
              </property>
             </widget>
            </item>
@@ -258,6 +325,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionExport"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -265,6 +333,17 @@
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

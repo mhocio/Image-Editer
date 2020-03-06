@@ -27,18 +27,24 @@ void PhotoApp::on_actionOpen_triggered()
         if (image.load(originalPhotoName) == 0)
             QMessageBox::warning(this, "Warning", "Cannot open file");
 
-        image = image.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio);
+        //image = image.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio);
 
         currentQPixmap = originalQPixmap = QPixmap::fromImage(image);
 
         currentImage = Image(currentQPixmap);
-        ui->originalPhoto_label->setPixmap(currentQPixmap);
-        ui->changedPhoto_label->setPixmap(currentQPixmap);
+        ui->originalPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+        ui->changedPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
     }
 }
 
+void PhotoApp::on_resetImageButton_clicked()
+{
+    currentImage._QPixmap = originalQPixmap;
+    ui->changedPhoto_label->setPixmap(originalQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+}
+
 void PhotoApp::updateChangedPhoto() {
-    ui->changedPhoto_label->setPixmap(currentImage._QPixmap);
+    ui->changedPhoto_label->setPixmap(currentImage._QPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
 }
 
 void PhotoApp::on_inverseFilterButton_clicked()
@@ -62,41 +68,6 @@ void PhotoApp::on_gammaCorrectionButton_clicked()
     updateChangedPhoto();
 }
 
-void PhotoApp::on_convolutionButton_clicked()
-{
-    // Create a dynamic array of pointers
-    int** f = new int* [3];
-
-    // Create a row for every pointer
-    for (int i=0; i<3; i++)
-    {
-       // Note : Rows may not be contiguous
-       f[i] = new int[3];
-
-       // Initialize all entries as false to indicate
-       // that there are no edges initially
-       memset(f[i], 1, 3*sizeof(int));
-    }
-
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            f[i][j] = 1;
-
-    int f2[3][3] = {
-        {1, 1, 1},
-        {1, 1, 1},
-        {1, 1, 1}
-    };
-
-    ConvolutionFilter filter(3, 3, f, 1, 1);
-    currentImage.ApplyConvolutionFilter(filter);
-    updateChangedPhoto();
-
-    for (int i = 0; i < 3; i++)
-        delete [] f[i];
-    delete [] f;
-}
-
 void PhotoApp::on_constrastFilterButton_clicked()
 {
     ContrastFilter filter;
@@ -104,39 +75,64 @@ void PhotoApp::on_constrastFilterButton_clicked()
     updateChangedPhoto();
 }
 
-void PhotoApp::on_resetImageButton_clicked()
+void PhotoApp::on_convolutionButton_clicked()
 {
-    currentImage._QPixmap = originalQPixmap;
-    ui->changedPhoto_label->setPixmap(originalQPixmap);
-}
-
-void PhotoApp::on_sharpenFilterButton_clicked()
-{
-    // Create a dynamic array of pointers
-    int** f = new int* [3];
-
-    // Create a row for every pointer
-    for (int i=0; i<3; i++)
-    {
-       // Note : Rows may not be contiguous
-       f[i] = new int[3];
-
-       // Initialize all entries as false to indicate
-       // that there are no edges initially
-       memset(f[i], 1, 3*sizeof(int));
-    }
-
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            f[i][j] = -1;
-
-    f[1][1] =9;
+    int f[9] = {1,1,1,
+                1,1,1,
+                1,1,1};
 
     ConvolutionFilter filter(3, 3, f, 1, 1);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
+}
 
-    for (int i = 0; i < 3; i++)
-        delete [] f[i];
-    delete [] f;
+void PhotoApp::on_sharpenFilterButton_clicked()
+{
+    int f[9] = {-1,-1,-1,
+                -1, 9,-1,
+                -1,-1,-1};
+
+    ConvolutionFilter filter(3, 3, f, 1, 1);
+    currentImage.ApplyConvolutionFilter(filter);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_edgeDetectionFilterButton_clicked()
+{
+    int f[9] = {0, -1, 0,
+                0,  1, 0,
+                0,  0, 0};
+
+    ConvolutionFilter filter(3, 3, f, 1, 1);
+    currentImage.ApplyConvolutionFilter(filter);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_gaussianBlurFilterButton_clicked()
+{
+    int f[9] = {0, 1, 0,
+                1, 4, 1,
+                0, 1, 0};
+
+    ConvolutionFilter filter(3, 3, f, 1, 1);
+    currentImage.ApplyConvolutionFilter(filter);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_embossFilterButton_clicked()
+{
+    int f[9] = {-1,-1,-1,
+                 0, 1, 0,
+                 1, 1, 1};
+
+    ConvolutionFilter filter(3, 3, f, 1, 1);
+    currentImage.ApplyConvolutionFilter(filter);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_actionExport_triggered()
+{
+    QString exportImageName = QFileDialog::getSaveFileName(this, tr("Export Image"), "", tr("Images (*.jpg"));
+    if (exportImageName != "")
+        currentImage._QPixmap.toImage().save(exportImageName);
 }

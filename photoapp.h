@@ -38,6 +38,14 @@ private slots:
 
     void on_sharpenFilterButton_clicked();
 
+    void on_edgeDetectionFilterButton_clicked();
+
+    void on_gaussianBlurFilterButton_clicked();
+
+    void on_embossFilterButton_clicked();
+
+    void on_actionExport_triggered();
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;

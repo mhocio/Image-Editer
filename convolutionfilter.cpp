@@ -1,6 +1,6 @@
 #include "convolutionfilter.h"
 
-ConvolutionFilter::ConvolutionFilter(int width, int height, int** filter, int anchor_x, int anchor_y)
+ConvolutionFilter::ConvolutionFilter(int width, int height, int* filter, int anchor_x, int anchor_y)
 {
     this->height = height;
     this->width = width;
