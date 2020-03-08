@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>980</width>
-    <height>696</height>
+    <height>987</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -141,10 +141,27 @@
             <x>0</x>
             <y>0</y>
             <width>288</width>
-            <height>786</height>
+            <height>888</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
+           <item row="23" column="1">
+            <widget class="QComboBox" name="FiltersComboBox"/>
+           </item>
+           <item row="23" column="0">
+            <widget class="QPushButton" name="loadFilterButton">
+             <property name="text">
+              <string>Load Filter</string>
+             </property>
+            </widget>
+           </item>
+           <item row="17" column="0">
+            <widget class="QPushButton" name="applyUserFilterButton">
+             <property name="text">
+              <string>Apply Filter</string>
+             </property>
+            </widget>
+           </item>
            <item row="11" column="0" colspan="2">
             <widget class="QPushButton" name="edgeDetectionFilterButton">
              <property name="text">
@@ -175,10 +192,24 @@
              </property>
             </widget>
            </item>
+           <item row="17" column="1">
+            <widget class="QPushButton" name="resetUserFunction">
+             <property name="text">
+              <string>Reset Function</string>
+             </property>
+            </widget>
+           </item>
            <item row="7" column="0" colspan="2">
             <widget class="Line" name="line">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="22" column="0">
+            <widget class="QPushButton" name="saveButtonFilter">
+             <property name="text">
+              <string>Save Filter</string>
              </property>
             </widget>
            </item>
@@ -203,6 +234,13 @@
              </property>
             </widget>
            </item>
+           <item row="15" column="0" colspan="2">
+            <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
            <item row="3" column="0" colspan="2">
             <widget class="QPushButton" name="inverseFilterButton">
              <property name="text">
@@ -214,13 +252,6 @@
             <widget class="QPushButton" name="embossFilterButton">
              <property name="text">
               <string>Emboss (South)</string>
-             </property>
-            </widget>
-           </item>
-           <item row="16" column="0">
-            <widget class="QPushButton" name="resetUserFunction">
-             <property name="text">
-              <string>Reset Function</string>
              </property>
             </widget>
            </item>
@@ -268,7 +299,7 @@
              </property>
             </widget>
            </item>
-           <item row="19" column="0" colspan="2">
+           <item row="20" column="0" colspan="2">
             <widget class="QGraphicsView" name="graphicsViewFilter">
              <property name="minimumSize">
               <size>
@@ -346,19 +377,8 @@
              </property>
             </widget>
            </item>
-           <item row="16" column="1">
-            <widget class="QPushButton" name="applyUserFilterButton">
-             <property name="text">
-              <string>Apply Filter</string>
-             </property>
-            </widget>
-           </item>
-           <item row="15" column="0" colspan="2">
-            <widget class="Line" name="line_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
+           <item row="22" column="1">
+            <widget class="QLineEdit" name="lineSaveFilterName"/>
            </item>
           </layout>
          </widget>

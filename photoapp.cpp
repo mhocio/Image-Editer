@@ -10,9 +10,10 @@ PhotoApp::PhotoApp(QWidget *parent)
     ui->setupUi(this);
     this->setCentralWidget(ui->horizontalFrame);
 
-    scene = new GraphicsScene(this);
-    ui->graphicsViewFilter->setScene(scene);
+    sceneUserFilter = new GraphicsScene(this);
+    ui->graphicsViewFilter->setScene(sceneUserFilter);
 
+    /*
     QBrush redBrush(Qt::red);
     QBrush blueBrush(Qt::blue);
     QPen blackPen(Qt::black);
@@ -26,6 +27,7 @@ PhotoApp::PhotoApp(QWidget *parent)
 
     QLineF line = QLineF(0, 255, 255, 0);
     scene->addLine(line, blackPen);
+    */
 
     /*
     static const QPointF points[3] = {
@@ -175,13 +177,13 @@ void PhotoApp::on_widget_customContextMenuRequested(const QPoint &pos)
 
 void PhotoApp::on_resetUserFunction_clicked()
 {
-    scene->removeAllPoints();
+    sceneUserFilter->removeAllPoints();
 }
 
 //User's Function Filter
 void PhotoApp::on_applyUserFilterButton_clicked()
 {
-    auto points = scene->points;
+    auto points = sceneUserFilter->points;
 
     QImage image = currentImage._QPixmap.toImage().convertToFormat(QImage::Format_BGR888);
     uchar* bits = image.bits();
@@ -224,4 +226,23 @@ void PhotoApp::on_applyUserFilterButton_clicked()
 
     currentImage._QPixmap = QPixmap::fromImage(image);
     updateChangedPhoto();
+}
+
+void PhotoApp::on_saveButtonFilter_clicked()
+{
+    ui->FiltersComboBox->addItem(ui->lineSaveFilterName->text());
+
+    QString name = ui->lineSaveFilterName->text();
+    std::pair<QString, std::vector<std::pair<int,int>>> elem = std::make_pair(name, this->sceneUserFilter->points);
+    filtersDict.insert(elem);
+
+    ui->lineSaveFilterName->setText("");
+}
+
+void PhotoApp::on_loadFilterButton_clicked()
+{
+    QString selectedFilter = ui->FiltersComboBox->currentText();
+
+    sceneUserFilter->points = filtersDict.at(selectedFilter);
+    sceneUserFilter->drawFunction();
 }

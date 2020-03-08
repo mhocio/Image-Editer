@@ -9,6 +9,7 @@ GraphicsScene::GraphicsScene(QObject *parent) :
     QGraphicsScene(parent)
 {
     this->setBackgroundBrush(Qt::gray);
+    removeAllPoints();
 }
 
 void GraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * mouseEvent)

@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include <map>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class PhotoApp; }
@@ -65,6 +66,10 @@ private slots:
 
     void on_applyUserFilterButton_clicked();
 
+    void on_saveButtonFilter_clicked();
+
+    void on_loadFilterButton_clicked();
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;
@@ -73,8 +78,9 @@ private:
 
     Image currentImage;
 
-    GraphicsScene *scene;
+    GraphicsScene *sceneUserFilter;
     QGraphicsEllipseItem *ellipse;
     QGraphicsRectItem *rectangle;
+    std::map<QString, std::vector<std::pair<int,int>> > filtersDict;
 };
 #endif // PHOTOAPP_H

@@ -10,7 +10,7 @@ class GraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    std::vector<std::pair<int,int> >points;
+    std::vector<std::pair<int,int> > points;
     void _clearItems();
     void drawFunction();
     void removeAllPoints();
