@@ -43,11 +43,18 @@ void Image::ApplyConvolutionFilter(ConvolutionFilter& filter)
     int w = image.width();
     int imageSize = image.sizeInBytes();
 
+    int weight = 0;
+    for (int i = 0; i < filter.width; i++)
+        for (int j = 0; j < filter.height; j++)
+            weight += filter.filter[i * filter.width + j];
+
+    if (weight <= 0)
+        weight = 1;
+
     // iterate through all bits(RGBA)
     for (int iter = 0; iter < imageSize; iter += noChannels+1) {
         // iterate RGB channels skipping A
         for (int channel = 0; channel < noChannels; channel++) {
-            int weight = 0;
             int newValue = 0;
 
             for (int i = 0; i < filter.width; i++)
@@ -57,15 +64,14 @@ void Image::ApplyConvolutionFilter(ConvolutionFilter& filter)
                     int y = j - filter.anchor_y;
                     //int actual_x = i % w;
                     //int actual_y = i / w;
-                    weight += filter.filter[i * filter.width + j];
 
-                    if (0 < iter +channel + 4*x + 4*y*w < imageSize)
-                        newValue += filter.filter[i * filter.width + j] * *(bits+iter +channel + 4*x + 4*y*w);
+                    int nextI = iter +channel + 4*x + 4*y*w;
+
+                    if ((0 < nextI) && (nextI < imageSize))
+                        newValue += filter.filter[i * filter.width + j] * *(bits + nextI);
                     else
                         newValue += *(bits+iter+channel);
                 }
-            if (weight == 0)
-                weight = 1;
 
             *(newBits+iter+channel) = qBound(0, (int)(newValue / weight), 255);
         }

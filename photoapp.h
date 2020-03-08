@@ -6,6 +6,12 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QtCore>
+#include <QtGui>
+#include <QDialog>
+#include <QGraphicsScene>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsRectItem>
 #include "image.h"
 
 QT_BEGIN_NAMESPACE
@@ -46,6 +52,8 @@ private slots:
 
     void on_actionExport_triggered();
 
+    void on_widget_customContextMenuRequested(const QPoint &pos);
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;
@@ -53,5 +61,9 @@ private:
     QPixmap originalQPixmap;
 
     Image currentImage;
+
+    QGraphicsScene *scene;
+    QGraphicsEllipseItem *ellipse;
+    QGraphicsRectItem *rectangle;
 };
 #endif // PHOTOAPP_H

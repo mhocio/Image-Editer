@@ -8,6 +8,21 @@ PhotoApp::PhotoApp(QWidget *parent)
 {
     ui->setupUi(this);
     this->setCentralWidget(ui->horizontalFrame);
+
+    scene = new QGraphicsScene(this);
+    ui->graphicsViewFilter->setScene(scene);
+
+    QBrush redBrush(Qt::red);
+    QBrush blueBrush(Qt::blue);
+    QPen blackPen(Qt::black);
+    blackPen.setWidth(6);
+
+    ellipse = scene->addEllipse(10, 10, 100, 100, blackPen, redBrush);
+    rectangle = scene->addRect(-100, -100, 50, 50, blackPen, blueBrush);
+    rectangle->setFlag(QGraphicsItem::ItemIsMovable);
+
+    QPen whitePen(Qt::white);
+
 }
 
 PhotoApp::~PhotoApp()
@@ -135,4 +150,9 @@ void PhotoApp::on_actionExport_triggered()
     QString exportImageName = QFileDialog::getSaveFileName(this, tr("Export Image"), "", tr("Images (*.jpg"));
     if (exportImageName != "")
         currentImage._QPixmap.toImage().save(exportImageName);
+}
+
+void PhotoApp::on_widget_customContextMenuRequested(const QPoint &pos)
+{
+
 }
