@@ -141,20 +141,72 @@
             <x>0</x>
             <y>0</y>
             <width>288</width>
-            <height>750</height>
+            <height>786</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
-           <item row="14" column="1">
-            <widget class="QPushButton" name="pushButton">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+           <item row="11" column="0" colspan="2">
+            <widget class="QPushButton" name="edgeDetectionFilterButton">
+             <property name="text">
+              <string>Edge Detection</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0" colspan="2">
+            <widget class="QPushButton" name="sharpenFilterButton">
+             <property name="text">
+              <string>Sharpen</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
+            <widget class="QLabel" name="label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
              </property>
              <property name="text">
-              <string>PushButton</string>
+              <string>Function Filters</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" colspan="2">
+            <widget class="QPushButton" name="gammaCorrectionButton">
+             <property name="text">
+              <string>Gamma Correction</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" colspan="2">
+            <widget class="QPushButton" name="constrastFilterButton">
+             <property name="text">
+              <string>Contrast Enhancement</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="2">
+            <widget class="QPushButton" name="inverseFilterButton">
+             <property name="text">
+              <string>Inverse</string>
              </property>
             </widget>
            </item>
@@ -162,6 +214,20 @@
             <widget class="QPushButton" name="embossFilterButton">
              <property name="text">
               <string>Emboss (South)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="16" column="0">
+            <widget class="QPushButton" name="resetUserFunction">
+             <property name="text">
+              <string>Reset Function</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QPushButton" name="brightnessCorrectionButton">
+             <property name="text">
+              <string>Brightness Correction</string>
              </property>
             </widget>
            </item>
@@ -202,10 +268,51 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="0" colspan="2">
-            <widget class="QPushButton" name="constrastFilterButton">
+           <item row="19" column="0" colspan="2">
+            <widget class="QGraphicsView" name="graphicsViewFilter">
+             <property name="minimumSize">
+              <size>
+               <width>255</width>
+               <height>255</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>255</width>
+               <height>255</height>
+              </size>
+             </property>
+             <property name="accessibleName">
+              <string>graphicsViewFilter</string>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="sizeAdjustPolicy">
+              <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0" colspan="2">
+            <widget class="QPushButton" name="convolutionButton">
              <property name="text">
-              <string>Contrast Enhancement</string>
+              <string>Blur</string>
+             </property>
+            </widget>
+           </item>
+           <item row="14" column="1">
+            <widget class="QPushButton" name="pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>PushButton</string>
              </property>
             </widget>
            </item>
@@ -213,50 +320,6 @@
             <widget class="QPushButton" name="gaussianBlurFilterButton">
              <property name="text">
               <string>Gaussian Blur</string>
-             </property>
-            </widget>
-           </item>
-           <item row="7" column="0" colspan="2">
-            <widget class="Line" name="line">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QPushButton" name="brightnessCorrectionButton">
-             <property name="text">
-              <string>Brightness Correction</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="Line" name="line_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="0" colspan="2">
-            <widget class="QPushButton" name="edgeDetectionFilterButton">
-             <property name="text">
-              <string>Edge Detection</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QLabel" name="label">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>20</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Function Filters</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -276,20 +339,6 @@
              </property>
             </widget>
            </item>
-           <item row="9" column="0" colspan="2">
-            <widget class="QPushButton" name="convolutionButton">
-             <property name="text">
-              <string>Blur</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QPushButton" name="inverseFilterButton">
-             <property name="text">
-              <string>Inverse</string>
-             </property>
-            </widget>
-           </item>
            <item row="14" column="0">
             <widget class="QSlider" name="horizontalSlider">
              <property name="orientation">
@@ -297,17 +346,10 @@
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
-            <widget class="QPushButton" name="gammaCorrectionButton">
+           <item row="16" column="1">
+            <widget class="QPushButton" name="applyUserFilterButton">
              <property name="text">
-              <string>Gamma Correction</string>
-             </property>
-            </widget>
-           </item>
-           <item row="10" column="0" colspan="2">
-            <widget class="QPushButton" name="sharpenFilterButton">
-             <property name="text">
-              <string>Sharpen</string>
+              <string>Apply Filter</string>
              </property>
             </widget>
            </item>
@@ -315,25 +357,6 @@
             <widget class="Line" name="line_3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="16" column="0" colspan="2">
-            <widget class="QGraphicsView" name="graphicsViewFilter">
-             <property name="minimumSize">
-              <size>
-               <width>255</width>
-               <height>255</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>255</width>
-               <height>255</height>
-              </size>
-             </property>
-             <property name="accessibleName">
-              <string>graphicsViewFilter</string>
              </property>
             </widget>
            </item>

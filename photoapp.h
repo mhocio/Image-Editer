@@ -13,6 +13,11 @@
 #include <QGraphicsEllipseItem>
 #include <QGraphicsRectItem>
 #include "image.h"
+#include "graphicsscene.h"
+
+#include <algorithm>
+#include <vector>
+#include <iostream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class PhotoApp; }
@@ -26,6 +31,8 @@ public:
     PhotoApp(QWidget *parent = nullptr);
     ~PhotoApp();
     void updateChangedPhoto();
+
+    std::vector<std::pair<int,int> >points;
 
 private slots:
     void on_actionOpen_triggered();
@@ -54,6 +61,10 @@ private slots:
 
     void on_widget_customContextMenuRequested(const QPoint &pos);
 
+    void on_resetUserFunction_clicked();
+
+    void on_applyUserFilterButton_clicked();
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;
@@ -62,7 +73,7 @@ private:
 
     Image currentImage;
 
-    QGraphicsScene *scene;
+    GraphicsScene *scene;
     QGraphicsEllipseItem *ellipse;
     QGraphicsRectItem *rectangle;
 };

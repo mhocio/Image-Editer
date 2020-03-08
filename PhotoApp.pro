@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     convolutionfilter.cpp \
     functionalfilter.cpp \
+    graphicsscene.cpp \
     image.cpp \
     main.cpp \
     photoapp.cpp
@@ -25,6 +26,7 @@ SOURCES += \
 HEADERS += \
     convolutionfilter.h \
     functionalfilter.h \
+    graphicsscene.h \
     image.h \
     photoapp.h
 
