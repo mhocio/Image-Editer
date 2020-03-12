@@ -8,6 +8,7 @@
 GraphicsScene::GraphicsScene(QObject *parent) :
     QGraphicsScene(parent)
 {
+    setSceneRect(0, 0, 254, 254);
     this->setBackgroundBrush(Qt::gray);
     removeAllPoints();
 }
@@ -49,26 +50,42 @@ void GraphicsScene::removeAllPoints()
     drawFunction();
 }
 
+class QGraphicsEllipseItem_Custom : public QGraphicsEllipseItem
+{
+protected:
+};
+
 void GraphicsScene::drawFunction()
 {
-    int radius = 4;
+    int radius = 3;
     _clearItems();
 
     std::pair<int,int> prevPair;
     bool first = true;
 
     QPen blackPen(Qt::black);
-    blackPen.setWidth(3);
+    blackPen.setWidth(2);
+
+    QLineF lineDotted = QLineF(0, 255, 255, 0);
+    this->addLine(lineDotted, QPen(Qt::DashDotLine));
 
     for (std::pair<int,int> elem: points) {
-        QGraphicsEllipseItem * ellipse = this->addEllipse(elem.first - radius, elem.second - radius, radius*2, radius*2);
-        //ellipse->setFlag(QGraphicsItem::ItemIsMovable);
-        ellipse->setBrush(Qt::white);
-
         if (!first) {
             QLineF line = QLineF(prevPair.first, prevPair.second, elem.first, elem.second);
             this->addLine(line, blackPen);
         }
+
+        //QGraphicsEllipseItem_CustomPoint * ellipse;
+        QGraphicsEllipseItem * ellipse = this->addEllipse(elem.first - radius, elem.second - radius, radius*2, radius*2);
+        QGraphicsEllipseItem_Custom Custom;
+        Custom.setRect(ellipse->rect());
+
+        ellipse->setFlag(QGraphicsItem::ItemIsMovable);
+        ellipse->setBrush(Qt::white);
+
+        //Custom.setFlag(QGraphicsItem::ItemIsMovable);
+        Custom.setBrush(Qt::red);
+        this->addItem(&Custom);
 
         prevPair.first = elem.first;
         prevPair.second = elem.second;

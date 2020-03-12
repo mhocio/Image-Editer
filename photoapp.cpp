@@ -13,6 +13,8 @@ PhotoApp::PhotoApp(QWidget *parent)
     sceneUserFilter = new GraphicsScene(this);
     ui->graphicsViewFilter->setScene(sceneUserFilter);
 
+    addFunctionFilters();
+
     /*
     QBrush redBrush(Qt::red);
     QBrush blueBrush(Qt::blue);
@@ -41,6 +43,45 @@ PhotoApp::PhotoApp(QWidget *parent)
     painter.drawPolyline(points, 3);
     */
 
+}
+
+void PhotoApp::addFunctionFilters()
+{
+    QString filterName = "Inverse";
+    ui->FiltersComboBox->addItem(filterName);
+    std::vector<std::pair<int,int> > points;
+    points.push_back(std::make_pair(0, 0));
+    points.push_back(std::make_pair(255, 255));
+    std::pair<QString, std::vector<std::pair<int,int>>> elem = std::make_pair(filterName, points);
+    filtersDict.insert(elem);
+
+    filterName = "Brightness up";
+    ui->FiltersComboBox->addItem(filterName);
+    points.clear();
+    points.push_back(std::make_pair(0, 200));
+    points.push_back(std::make_pair(200, 0));
+    points.push_back(std::make_pair(255, 0));
+    elem = std::make_pair(filterName, points);
+    filtersDict.insert(elem);
+
+    filterName = "Brightness down";
+    ui->FiltersComboBox->addItem(filterName);
+    points.clear();
+    points.push_back(std::make_pair(0, 255));
+    points.push_back(std::make_pair(56, 255));
+    points.push_back(std::make_pair(255, 56));
+    elem = std::make_pair(filterName, points);
+    filtersDict.insert(elem);
+
+    filterName = "Contrast up";
+    ui->FiltersComboBox->addItem(filterName);
+    points.clear();
+    points.push_back(std::make_pair(0, 255));
+    points.push_back(std::make_pair(56, 255));
+    points.push_back(std::make_pair(255-56, 0));
+    points.push_back(std::make_pair(255, 0));
+    elem = std::make_pair(filterName, points);
+    filtersDict.insert(elem);
 }
 
 PhotoApp::~PhotoApp()
@@ -89,32 +130,32 @@ void PhotoApp::on_inverseFilterButton_clicked()
 
 void PhotoApp::on_brightnessCorrectionButton_clicked()
 {
-    BrightnessCorrectionFilter filter;
+    BrightnessCorrectionFilter filter = BrightnessCorrectionFilter(ui->horizontalSliderBrightness->value());
     currentImage.ApplyFunctionalFilter(filter);
     updateChangedPhoto();
 }
 
 void PhotoApp::on_gammaCorrectionButton_clicked()
 {
-    GammaCorrectionFilter filter;
+    GammaCorrectionFilter filter = GammaCorrectionFilter(ui->horizontalSliderGamma->value());
     currentImage.ApplyFunctionalFilter(filter);
     updateChangedPhoto();
 }
 
 void PhotoApp::on_constrastFilterButton_clicked()
 {
-    ContrastFilter filter;
+    ContrastFilter filter = ContrastFilter(ui->horizontalSliderContrast->value());
     currentImage.ApplyFunctionalFilter(filter);
     updateChangedPhoto();
 }
 
 void PhotoApp::on_convolutionButton_clicked()
 {
-    int f[12] = {1,1,1,
+    int f[9] = {1,1,1,
                 1,1,1,
                 1,1,1,};
 
-    ConvolutionFilter filter(3, 3, f, 1, 1);
+    ConvolutionFilter filter(3, 3, f, 1, 1, 9, 0);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
 }
@@ -125,7 +166,7 @@ void PhotoApp::on_sharpenFilterButton_clicked()
                 -1, 9,-1,
                 -1,-1,-1};
 
-    ConvolutionFilter filter(3, 3, f, 1, 1);
+    ConvolutionFilter filter(3, 3, f, 1, 1, 1, 0);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
 }
@@ -136,7 +177,7 @@ void PhotoApp::on_edgeDetectionFilterButton_clicked()
                 0,  1, 0,
                 0,  0, 0};
 
-    ConvolutionFilter filter(3, 3, f, 1, 1);
+    ConvolutionFilter filter(3, 3, f, 1, 1, 1, 127);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
 }
@@ -147,7 +188,7 @@ void PhotoApp::on_gaussianBlurFilterButton_clicked()
                 1, 4, 1,
                 0, 1, 0};
 
-    ConvolutionFilter filter(3, 3, f, 1, 1);
+    ConvolutionFilter filter(3, 3, f, 1, 1, 8, 0);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
 }
@@ -158,7 +199,7 @@ void PhotoApp::on_embossFilterButton_clicked()
                  0, 1, 0,
                  1, 1, 1};
 
-    ConvolutionFilter filter(3, 3, f, 1, 1);
+    ConvolutionFilter filter(3, 3, f, 1, 1, 1, 0);
     currentImage.ApplyConvolutionFilter(filter);
     updateChangedPhoto();
 }
@@ -180,18 +221,32 @@ void PhotoApp::on_resetUserFunction_clicked()
     sceneUserFilter->removeAllPoints();
 }
 
+int GetY(std::pair<int,int> A, std::pair<int,int> B, int x) {
+    auto a = (B.second - A.second) / (B.first - A.first);
+    auto b = A.second - (a * A.first);
+
+    return a*x + b;
+}
+
 //User's Function Filter
 void PhotoApp::on_applyUserFilterButton_clicked()
 {
     auto points = sceneUserFilter->points;
 
-    QImage image = currentImage._QPixmap.toImage().convertToFormat(QImage::Format_BGR888);
+    QImage image = currentImage._QPixmap.toImage().convertToFormat(QImage::Format_RGB888);
     uchar* bits = image.bits();
     uchar* bitsEnd = bits + image.sizeInBytes();
 
     int prev = 0;
 
+    int i = 0;
+
     while(bits < bitsEnd) {
+        /*if (i == 3) {
+            i = 0;
+            continue;
+        }
+        i++;*/
         bool applied = false;
         for (u_int i = 0; i < points.size()-1; i++) {
 
@@ -199,21 +254,38 @@ void PhotoApp::on_applyUserFilterButton_clicked()
                 break;
 
             if (points[i].first == (int)(*bits)) {
-                (*bits) = qBound(0, points[i].second, 255);
+                (*bits) = qBound(0, 255 - points[i].second, 255);
                 applied = true;
             } else if (points[i].first < (*bits)) {
+                /*
                 auto A = points[i];
                 auto B = points[i+1];
 
-                int a = B.first - A.first;
-                int b = B.second - A.second;
-                int c = (int)(*bits) - A.first;
+                double rise = (255 - B.second) - (255 - A.second);
+                double run = B.first - A.first;
 
-                double d = b*c/a;
+                double a = rise / run;
+                double b;
 
-                double res = A.second + d;
-                (*bits) = qBound(0, (int)(255 - res), 255);
+                if (a < 0) {
+                    b = (a * A.first) + (255 - A.second);
+                } else {
+                    b = (255 - B.second) - (a * B.first);
+                }
+
+                double res = a * (*bits) + b;
+                (*bits) = qBound(0, (int)(res), 255);
                 applied = true;
+                */
+
+
+                auto A = points[i];
+                A.second = 255 - A.second;
+                auto B = points[i+1];
+                B.second = 255 - B.second;
+                (*bits) = qBound(0, (int)(GetY(A, B, *bits)), 255);
+                applied = true;
+
             }
         }
 
@@ -230,10 +302,25 @@ void PhotoApp::on_applyUserFilterButton_clicked()
 
 void PhotoApp::on_saveButtonFilter_clicked()
 {
-    ui->FiltersComboBox->addItem(ui->lineSaveFilterName->text());
+    QString filterName = ui->lineSaveFilterName->text();
 
-    QString name = ui->lineSaveFilterName->text();
-    std::pair<QString, std::vector<std::pair<int,int>>> elem = std::make_pair(name, this->sceneUserFilter->points);
+    if (filterName == "") {
+        QMessageBox Msgbox;
+        Msgbox.setIcon(QMessageBox::Warning);
+        Msgbox.setText("Fill some name of the Filter.");
+        Msgbox.exec();
+        return;
+    } else if (filtersDict.find(filterName) != filtersDict.end()) {
+        QMessageBox Msgbox;
+        Msgbox.setIcon(QMessageBox::Warning);
+        Msgbox.setText("Filter with the given name already exists.");
+        Msgbox.exec();
+        return;
+    }
+
+    ui->FiltersComboBox->addItem(filterName);
+
+    std::pair<QString, std::vector<std::pair<int,int>>> elem = std::make_pair(filterName, this->sceneUserFilter->points);
     filtersDict.insert(elem);
 
     ui->lineSaveFilterName->setText("");
@@ -241,8 +328,26 @@ void PhotoApp::on_saveButtonFilter_clicked()
 
 void PhotoApp::on_loadFilterButton_clicked()
 {
-    QString selectedFilter = ui->FiltersComboBox->currentText();
+    QString selectedFilterName = ui->FiltersComboBox->currentText();
 
-    sceneUserFilter->points = filtersDict.at(selectedFilter);
+    sceneUserFilter->points = filtersDict[selectedFilterName];
     sceneUserFilter->drawFunction();
+}
+
+void PhotoApp::resizeEvent(QResizeEvent* event)
+{
+   //QMainWindow::resizeEvent(event);
+   updateChangedPhoto();
+   ui->originalPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+}
+
+void PhotoApp::on_medianFilterButton_clicked()
+{
+    int f[9] = {1,1,1,
+                1,1,1,
+                1,1,1,};
+
+    ConvolutionFilter filter(3, 3, f, 1, 1, 0, 0);
+    currentImage.ApplyMedianFilter(filter);
+    updateChangedPhoto();
 }

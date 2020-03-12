@@ -12,7 +12,10 @@ public:
     int anchor_x;
     int anchor_y;
 
-    ConvolutionFilter(int width, int height, int* filter, int anchor_x, int anchor_y);
+    int divisor;
+    int offset;
+
+    ConvolutionFilter(int width, int height, int* filter, int anchor_x, int anchor_y, int divisor, int offset);
 };
 
 #endif // CONVOLUTIONFILTER_H

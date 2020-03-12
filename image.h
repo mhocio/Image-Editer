@@ -4,6 +4,9 @@
 #include <QPixmap>
 #include <functionalfilter.h>
 #include <convolutionfilter.h>
+#include <QDebug>
+
+#include <algorithm>
 
 class Image
 {
@@ -12,6 +15,9 @@ public:
     Image();
     void ApplyFunctionalFilter(FunctionalFilter& filter);
     void ApplyConvolutionFilter(ConvolutionFilter& filter);
+
+    void ApplyMedianFilter(ConvolutionFilter& filter);
+
     void ApplyConvolutionFilter2(ConvolutionFilter& filter);
     QPixmap _QPixmap;
 };

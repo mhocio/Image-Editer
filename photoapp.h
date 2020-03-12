@@ -32,6 +32,7 @@ public:
     PhotoApp(QWidget *parent = nullptr);
     ~PhotoApp();
     void updateChangedPhoto();
+    void addFunctionFilters();
 
     std::vector<std::pair<int,int> >points;
 
@@ -69,6 +70,10 @@ private slots:
     void on_saveButtonFilter_clicked();
 
     void on_loadFilterButton_clicked();
+
+    void resizeEvent(QResizeEvent* event);
+
+    void on_medianFilterButton_clicked();
 
 private:
     Ui::PhotoApp *ui;
