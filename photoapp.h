@@ -33,6 +33,7 @@ public:
     ~PhotoApp();
     void updateChangedPhoto();
     void addFunctionFilters();
+    void changeToGreyscale();
 
     std::vector<std::pair<int,int> >points;
 
@@ -74,6 +75,12 @@ private slots:
     void resizeEvent(QResizeEvent* event);
 
     void on_medianFilterButton_clicked();
+
+    void on_averageDitheringButton_clicked();
+
+    void on_convertToGreyScaleButton_clicked();
+
+    void on_pushButtonDithering2_clicked();
 
 private:
     Ui::PhotoApp *ui;

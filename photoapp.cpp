@@ -14,35 +14,6 @@ PhotoApp::PhotoApp(QWidget *parent)
     ui->graphicsViewFilter->setScene(sceneUserFilter);
 
     addFunctionFilters();
-
-    /*
-    QBrush redBrush(Qt::red);
-    QBrush blueBrush(Qt::blue);
-    QPen blackPen(Qt::black);
-    blackPen.setWidth(3);
-
-    ellipse = scene->addEllipse(10, 10, 100, 100, blackPen, redBrush);
-    rectangle = scene->addRect(10, 10, 50, 50, blackPen, blueBrush);
-    rectangle->setFlag(QGraphicsItem::ItemIsMovable);
-
-    QPen whitePen(Qt::white);
-
-    QLineF line = QLineF(0, 255, 255, 0);
-    scene->addLine(line, blackPen);
-    */
-
-    /*
-    static const QPointF points[3] = {
-        QPointF(10.0, 80.0),
-        QPointF(20.0, 10.0),
-        QPointF(80.0, 30.0),
-    };
-
-    QPainter painter(this);
-    painter.setPen(blackPen);
-    painter.drawPolyline(points, 3);
-    */
-
 }
 
 void PhotoApp::addFunctionFilters()
@@ -89,7 +60,6 @@ PhotoApp::~PhotoApp()
     delete ui;
 }
 
-
 //opens a new Image
 void PhotoApp::on_actionOpen_triggered()
 {
@@ -106,15 +76,18 @@ void PhotoApp::on_actionOpen_triggered()
         currentQPixmap = originalQPixmap = QPixmap::fromImage(image);
 
         currentImage = Image(currentQPixmap);
-        ui->originalPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
-        ui->changedPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+        //ui->originalPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(),  Qt::KeepAspectRatioByExpanding));
+        //ui->changedPhoto_label->setPixmap(currentQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(),  Qt::KeepAspectRatioByExpanding));
+        ui->originalPhoto_label->setPixmap(currentQPixmap);
+        ui->changedPhoto_label->setPixmap(currentQPixmap);
     }
 }
 
 void PhotoApp::on_resetImageButton_clicked()
 {
     currentImage._QPixmap = originalQPixmap;
-    ui->changedPhoto_label->setPixmap(originalQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+    //ui->changedPhoto_label->setPixmap(originalQPixmap.scaled(ui->originalPhoto_label->width(), ui->originalPhoto_label->height(), Qt::KeepAspectRatio));
+    this->updateChangedPhoto();
 }
 
 void PhotoApp::updateChangedPhoto() {
@@ -289,9 +262,9 @@ void PhotoApp::on_applyUserFilterButton_clicked()
             }
         }
 
-        if (!applied) {
+        /*if (!applied) {
             (*bits) = 255;
-        }
+        }*/
 
         bits++;
     }
@@ -349,5 +322,203 @@ void PhotoApp::on_medianFilterButton_clicked()
 
     ConvolutionFilter filter(3, 3, f, 1, 1, 0, 0);
     currentImage.ApplyMedianFilter(filter);
+    updateChangedPhoto();
+}
+
+void PhotoApp::changeToGreyscale() {
+    QImage image = currentImage._QPixmap.toImage();
+
+    /*
+    // https://stackoverflow.com/questions/27949569/convert-a-qimage-to-grayscale
+    for (int ii = 0; ii < image.height(); ii++) {
+        uchar* scan = image.scanLine(ii);
+        int depth = 4;
+        for (int jj = 0; jj < image.width(); jj++) {
+
+            QRgb* rgbpixel = reinterpret_cast<QRgb*>(scan + jj*depth);
+            int gray = qGray(*rgbpixel);
+            *rgbpixel = QColor(gray, gray, gray).rgba();
+        }
+    }
+    // https://stackoverflow.com/questions/27949569/convert-a-qimage-to-grayscale
+    */
+    image = image.convertToFormat(QImage::Format_Grayscale8);
+
+    currentImage._QPixmap = QPixmap::fromImage(image);
+
+    this->updateChangedPhoto();
+}
+
+void PhotoApp::on_averageDitheringButton_clicked()
+{
+    int K = ui->spinBoxAverageDitheringK->value();
+    double split = 255 / (K - 1);
+
+    std::vector<int> splits;
+    splits.push_back(0);
+    for (int i = 1; i <= K - 2; i++)
+        splits.push_back((int)split * i);
+    splits.push_back(255);
+
+    for (int el: splits)
+        qDebug() << Q_FUNC_INFO << el;
+
+    //this->changeToGreyscale();
+
+    QImage image = currentImage._QPixmap.toImage();
+
+    std::vector<int> averages;
+
+    // calulate thersholds of each split
+    for (int i = 0; i < K - 1; i++) {
+        int counter = 0;
+        long long sum = 0;
+
+        uchar* bits = image.bits();
+        uchar* bitsEnd = bits + image.sizeInBytes();
+
+        while (bits < bitsEnd) {
+            if (((*bits) >= splits[i]) && (((*bits) < splits[i + 1]) || (((*bits) <= splits[i + 1]) && (i == K - 2)) )) {
+                counter++;
+                sum += (*bits);
+            }
+
+            bits += 4;
+        }
+        int average;
+        if (counter < 1)
+            average = splits[i];
+        else
+            average = sum / counter;
+
+        averages.push_back(average);
+    }
+
+    for (int el: averages)
+        qDebug() << Q_FUNC_INFO << el;
+
+    uchar* bits = image.bits();
+    uchar* bitsEnd = bits + image.sizeInBytes();
+
+    while (bits < bitsEnd) {
+        for (int i = 0; i < K - 1; i++) {
+            if (((*bits) >= splits[i]) && (((*bits) < splits[i + 1]) || (((*bits) <= splits[i + 1]) && (i == K - 2)) )) {
+                if ((*bits) <= averages[i]) {
+                    (*bits) = splits[i];
+                    break;
+                } else {
+                    (*bits) = splits[i + 1];
+                    break;
+                }
+            }
+        }
+        bits++;
+    }
+
+    currentImage._QPixmap = QPixmap::fromImage(image);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_convertToGreyScaleButton_clicked()
+{
+    this->changeToGreyscale();
+}
+
+std::vector<int> calculateThreshholds(std::vector<int> thresholds, uchar* bits, uchar* bitsEnd, int depth, int channel) {
+    if (depth == 0)
+        return thresholds;
+
+    std::vector<int> newThresholdValues;
+
+    for (unsigned int i = 0; i < thresholds.size() - 1; i++) {
+        uchar* p = bits;
+        uchar* pEnd = bitsEnd;
+
+        int left = thresholds[i];
+        int right = thresholds[i+1];
+
+        long long sum = 0;
+        int num = 0;
+
+        std::vector<int> numbers;
+
+        p += channel;
+
+        while (p < pEnd) {
+            if ((((*p) >= left) && ((*p) < right)) || ( (((*p) >= left) && ((*p) <= right)) && (i == thresholds.size()-2)) ) {
+                sum += (*p);
+                num++;
+                numbers.push_back((*p));
+            }
+            p += 4;
+        }
+
+        sort(numbers.begin(), numbers.end());
+        newThresholdValues.push_back((int)(sum / num));
+        //newThresholdValues.push_back((int)(numbers[numbers.size() / 2 - 1]));
+    }
+
+    thresholds.insert(thresholds.end(), newThresholdValues.begin(), newThresholdValues.end());
+    std::sort(thresholds.begin(), thresholds.end());
+
+    return calculateThreshholds(thresholds, bits, bitsEnd, depth - 1, channel);
+}
+
+void PhotoApp::on_pushButtonDithering2_clicked()
+{
+    int K = this->ui->spinBoxAverageDitheringK2->value();
+
+    if(K == 0 || (K & (K-1)) != 0) {
+        QMessageBox Msgbox;
+        Msgbox.setIcon(QMessageBox::Warning);
+        Msgbox.setText("K must be the power of 2.");
+        Msgbox.exec();
+        return;
+    }
+
+    //this->changeToGreyscale();
+
+    QImage image = currentImage._QPixmap.toImage();
+    uchar* bits = image.bits();
+    uchar* bitsEnd = bits + image.sizeInBytes();
+
+    int depth = log2(K);
+    //qDebug() << Q_FUNC_INFO << depth;
+
+    //for (auto val:thresholds)
+      //  qDebug() << Q_FUNC_INFO << val;
+
+    double split = 255 / (K - 1);
+    std::vector<int> greyVals;
+    greyVals.push_back(0);
+    for (int i = 1; i <= K - 2; i++)
+        greyVals.push_back((int)(split * i));
+    greyVals.push_back(255);
+
+    //for (int el: greyVals)
+      //  qDebug() << Q_FUNC_INFO << el;
+
+    for (int channel = 0; channel < 3; channel++)
+    {
+        bits = image.bits();
+        std::vector<int> thresholds;
+        thresholds.push_back(0);
+        thresholds.push_back(255);
+        thresholds = calculateThreshholds(thresholds, bits, bitsEnd, depth, channel);
+
+        bits += channel;
+        while (bits < bitsEnd) {
+            for (unsigned int i = 0; i < thresholds.size() - 1; i++) {
+                int val = (*bits);
+                if ((val >= thresholds[i]) && (val < thresholds[i+1])) {
+                    (*bits) = static_cast<uchar>(greyVals[i]);
+                    break;
+                }
+            }
+            bits += 4;
+        }
+    }
+
+    currentImage._QPixmap = QPixmap::fromImage(image);
     updateChangedPhoto();
 }
