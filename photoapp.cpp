@@ -354,65 +354,72 @@ void PhotoApp::on_averageDitheringButton_clicked()
     int K = ui->spinBoxAverageDitheringK->value();
     double split = 255 / (K - 1);
 
-    std::vector<int> splits;
-    splits.push_back(0);
+    std::vector<int> greyVals;
+    greyVals.push_back(0);
     for (int i = 1; i <= K - 2; i++)
-        splits.push_back((int)split * i);
-    splits.push_back(255);
+        greyVals.push_back((int)split * i);
+    greyVals.push_back(255);
 
-    for (int el: splits)
-        qDebug() << Q_FUNC_INFO << el;
+    //for (int el: greyVals)
+      //  qDebug() << Q_FUNC_INFO << el;
 
     //this->changeToGreyscale();
 
     QImage image = currentImage._QPixmap.toImage();
 
-    std::vector<int> averages;
+    for (unsigned int channel = 0; channel < 3; channel++) {
+        std::vector<int> averages;
+        // calulate thersholds of each split
+        for (int i = 0; i < K - 1; i++) {
+            int counter = 0;
+            long long sum = 0;
 
-    // calulate thersholds of each split
-    for (int i = 0; i < K - 1; i++) {
-        int counter = 0;
-        long long sum = 0;
+            uchar* bits = image.bits();
+            uchar* bitsEnd = bits + image.sizeInBytes();
+
+            bits += channel;
+
+            while (bits < bitsEnd) {
+                if (((*bits) >= greyVals[i]) && (((*bits) < greyVals[i + 1]) || (((*bits) <= greyVals[i + 1]) && (i == K - 2)) )) {
+                    counter++;
+                    sum += (*bits);
+                }
+
+                bits += 4;
+            }
+
+            int average;
+            if (counter < 1)
+                average = greyVals[i];
+            else
+                average = sum / counter;
+
+            averages.push_back(average);
+        }
+
+        //for (int el: averages)
+          //  qDebug() << Q_FUNC_INFO << el;
 
         uchar* bits = image.bits();
         uchar* bitsEnd = bits + image.sizeInBytes();
 
+        bits += channel;
+
         while (bits < bitsEnd) {
-            if (((*bits) >= splits[i]) && (((*bits) < splits[i + 1]) || (((*bits) <= splits[i + 1]) && (i == K - 2)) )) {
-                counter++;
-                sum += (*bits);
-            }
-
-            bits += 4;
-        }
-        int average;
-        if (counter < 1)
-            average = splits[i];
-        else
-            average = sum / counter;
-
-        averages.push_back(average);
-    }
-
-    for (int el: averages)
-        qDebug() << Q_FUNC_INFO << el;
-
-    uchar* bits = image.bits();
-    uchar* bitsEnd = bits + image.sizeInBytes();
-
-    while (bits < bitsEnd) {
-        for (int i = 0; i < K - 1; i++) {
-            if (((*bits) >= splits[i]) && (((*bits) < splits[i + 1]) || (((*bits) <= splits[i + 1]) && (i == K - 2)) )) {
-                if ((*bits) <= averages[i]) {
-                    (*bits) = splits[i];
-                    break;
-                } else {
-                    (*bits) = splits[i + 1];
-                    break;
+            for (int i = 0; i < K - 1; i++) {
+                if (((*bits) >= greyVals[i]) && (((*bits) < greyVals[i + 1]) || (((*bits) <= greyVals[i + 1]) && (i == K - 2)) )) {
+                    if ((*bits) <= averages[i]) {
+                        (*bits) = greyVals[i];
+                        break;
+                    } else {
+                        (*bits) = greyVals[i + 1];
+                        break;
+                    }
                 }
             }
+            bits += 4;
         }
-        bits++;
+
     }
 
     currentImage._QPixmap = QPixmap::fromImage(image);

@@ -139,9 +139,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-            <width>318</width>
-            <height>944</height>
+            <y>-122</y>
+            <width>303</width>
+            <height>1010</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,0">
@@ -157,6 +157,25 @@
            <property name="verticalSpacing">
             <number>9</number>
            </property>
+           <item row="24" column="0">
+            <widget class="QSpinBox" name="spinBoxAverageDitheringK2">
+             <property name="suffix">
+              <string/>
+             </property>
+             <property name="prefix">
+              <string>K = </string>
+             </property>
+             <property name="minimum">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <number>128</number>
+             </property>
+             <property name="displayIntegerBase">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
            <item row="18" column="0" colspan="2">
             <widget class="QPushButton" name="medianFilterButton">
              <property name="text">
@@ -164,14 +183,37 @@
              </property>
             </widget>
            </item>
-           <item row="20" column="1">
+           <item row="24" column="1">
+            <widget class="QPushButton" name="pushButtonDithering2">
+             <property name="text">
+              <string>Average Dithering 2</string>
+             </property>
+            </widget>
+           </item>
+           <item row="23" column="0" colspan="2">
+            <widget class="QLabel" name="label_7">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>with histogram equalization</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="22" column="1">
             <widget class="QPushButton" name="averageDitheringButton">
              <property name="text">
               <string>Average Dithering</string>
              </property>
             </widget>
            </item>
-           <item row="33" column="0" colspan="2">
+           <item row="36" column="0" colspan="2">
             <widget class="QGraphicsView" name="graphicsViewFilter">
              <property name="minimumSize">
               <size>
@@ -202,7 +244,7 @@
              </property>
             </widget>
            </item>
-           <item row="35" column="0">
+           <item row="38" column="0">
             <widget class="QPushButton" name="saveButtonFilter">
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
@@ -229,7 +271,7 @@
              </property>
             </widget>
            </item>
-           <item row="35" column="1">
+           <item row="38" column="1">
             <widget class="QLineEdit" name="lineSaveFilterName"/>
            </item>
            <item row="12" column="0" colspan="2">
@@ -252,10 +294,20 @@
              </property>
             </widget>
            </item>
-           <item row="36" column="1">
+           <item row="39" column="1">
             <widget class="QComboBox" name="FiltersComboBox">
              <property name="currentIndex">
               <number>-1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="33" column="1">
+            <widget class="QPushButton" name="resetUserFunction">
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="text">
+              <string>Reset Function</string>
              </property>
             </widget>
            </item>
@@ -272,16 +324,6 @@
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item row="30" column="1">
-            <widget class="QPushButton" name="resetUserFunction">
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="text">
-              <string>Reset Function</string>
              </property>
             </widget>
            </item>
@@ -308,7 +350,7 @@
              </property>
             </widget>
            </item>
-           <item row="26" column="0" colspan="2">
+           <item row="29" column="0" colspan="2">
             <widget class="Line" name="line_5">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -331,8 +373,14 @@
              </property>
             </widget>
            </item>
-           <item row="27" column="0" colspan="2">
+           <item row="30" column="0" colspan="2">
             <widget class="QLabel" name="label_6">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
              <property name="text">
               <string>Function Filter</string>
              </property>
@@ -443,7 +491,7 @@
              </property>
             </widget>
            </item>
-           <item row="36" column="0">
+           <item row="39" column="0">
             <widget class="QPushButton" name="loadFilterButton">
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
@@ -484,7 +532,7 @@
              </property>
             </widget>
            </item>
-           <item row="30" column="0">
+           <item row="33" column="0">
             <widget class="QPushButton" name="applyUserFilterButton">
              <property name="cursor">
               <cursorShape>PointingHandCursor</cursorShape>
@@ -563,7 +611,7 @@
              </property>
             </widget>
            </item>
-           <item row="20" column="0">
+           <item row="22" column="0">
             <widget class="QSpinBox" name="spinBoxAverageDitheringK">
              <property name="suffix">
               <string/>
@@ -588,29 +636,26 @@
              </property>
             </widget>
            </item>
-           <item row="21" column="1">
-            <widget class="QPushButton" name="pushButtonDithering2">
+           <item row="20" column="0" rowspan="2" colspan="2">
+            <widget class="QLabel" name="label_8">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>60</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Average Dithering 2</string>
+              <string>thresholds calculated between predefined 
+ number of greyvalues given by K</string>
              </property>
-            </widget>
-           </item>
-           <item row="21" column="0">
-            <widget class="QSpinBox" name="spinBoxAverageDitheringK2">
-             <property name="suffix">
-              <string/>
-             </property>
-             <property name="prefix">
-              <string>K = </string>
-             </property>
-             <property name="minimum">
-              <number>2</number>
-             </property>
-             <property name="maximum">
-              <number>128</number>
-             </property>
-             <property name="displayIntegerBase">
-              <number>10</number>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
