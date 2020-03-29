@@ -549,6 +549,12 @@ void pixels_quantize(uchar* imageBits, std::vector<std::vector<int>> bucket) {
     int G_average = G_sum / bucket.size();
     int B_average = B_sum / bucket.size();
 
+    qDebug() << Q_FUNC_INFO << bucket.size();
+    qDebug() << Q_FUNC_INFO << R_average;
+    qDebug() << Q_FUNC_INFO << G_average;
+    qDebug() << Q_FUNC_INFO << B_average;
+    qDebug() << "DUPA";
+
     for (auto pixel: bucket) {
         *(imageBits + pixel[3] + 0) = R_average;
         *(imageBits + pixel[3] + 1) = G_average;
@@ -615,11 +621,15 @@ void median_cut(uchar* imageBits, std::vector<std::vector<int>> bucket, int numC
             new_buckets.push_back(split_lo);
             new_buckets.push_back(split_hi);
         }
-        buckets = new_buckets;
+
+        buckets.clear();
+        buckets.assign(new_buckets.begin(), new_buckets.end());
+        qDebug() << Q_FUNC_INFO << buckets.size();
+        //buckets = new_buckets;
     }
 
-    for (auto buctet: buckets)
-        pixels_quantize(imageBits, bucket);
+    for (std::vector<std::vector<int>> elem: buckets)
+        pixels_quantize(imageBits, elem);
 }
 
 void median_cut_rec(uchar* imageBits, std::vector<std::vector<int>> bucket, int depth) {
@@ -704,7 +714,36 @@ void PhotoApp::on_medianCutButton_clicked()
 
     bits = image.bits();
     median_cut_rec(bits, bucket, K);
-    //median_cut(bits, bucket, pow(K, 2));
+    currentImage._QPixmap = QPixmap::fromImage(image);
+    updateChangedPhoto();
+}
+
+void PhotoApp::on_pushButtonMedianCut2_clicked()
+{
+    int numColors = this->ui->spinBoxMedianCut2->value();
+
+    QImage image = currentImage._QPixmap.toImage();
+    uchar* bits = image.bits();
+    uchar* bitsEnd = bits + image.sizeInBytes();
+
+    std::vector<std::vector<int>> bucket;
+    int i = 0;
+
+    while (bits < bitsEnd) {
+        std::vector<int> pixel;
+        pixel.push_back(*(bits));      // R
+        pixel.push_back(*(bits + 1));  // G
+        pixel.push_back(*(bits + 2));  // B
+        pixel.push_back(i);            // index
+
+        bucket.push_back(pixel);
+
+        bits += 4;
+        i += 4;
+    }
+
+    bits = image.bits();
+    median_cut(bits, bucket, numColors);
     currentImage._QPixmap = QPixmap::fromImage(image);
     updateChangedPhoto();
 }
