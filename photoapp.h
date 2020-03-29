@@ -82,6 +82,8 @@ private slots:
 
     void on_pushButtonDithering2_clicked();
 
+    void on_medianCutButton_clicked();
+
 private:
     Ui::PhotoApp *ui;
     QString originalPhotoName;

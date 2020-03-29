@@ -206,7 +206,7 @@ void PhotoApp::on_applyUserFilterButton_clicked()
 {
     auto points = sceneUserFilter->points;
 
-    QImage image = currentImage._QPixmap.toImage().convertToFormat(QImage::Format_RGB888);
+    QImage image = currentImage._QPixmap.toImage();
     uchar* bits = image.bits();
     uchar* bitsEnd = bits + image.sizeInBytes();
 
@@ -215,11 +215,12 @@ void PhotoApp::on_applyUserFilterButton_clicked()
     int i = 0;
 
     while(bits < bitsEnd) {
-        /*if (i == 3) {
+        if (i == 3) {
             i = 0;
             continue;
         }
-        i++;*/
+        i++;
+
         bool applied = false;
         for (u_int i = 0; i < points.size()-1; i++) {
 
@@ -261,6 +262,12 @@ void PhotoApp::on_applyUserFilterButton_clicked()
 
             }
         }
+
+        if ((*bits) > 255)
+            (*bits) = 255;
+
+        if ((*bits) < 0)
+            (*bits) = 0;
 
         /*if (!applied) {
             (*bits) = 255;
@@ -526,6 +533,178 @@ void PhotoApp::on_pushButtonDithering2_clicked()
         }
     }
 
+    currentImage._QPixmap = QPixmap::fromImage(image);
+    updateChangedPhoto();
+}
+
+void pixels_quantize(uchar* imageBits, std::vector<std::vector<int>> bucket) {
+    long long R_sum = 0, G_sum = 0, B_sum = 0;
+    for (auto pixel: bucket) {
+        R_sum += pixel[0];
+        G_sum += pixel[1];
+        B_sum += pixel[2];
+    }
+
+    int R_average = R_sum / bucket.size();
+    int G_average = G_sum / bucket.size();
+    int B_average = B_sum / bucket.size();
+
+    for (auto pixel: bucket) {
+        *(imageBits + pixel[3] + 0) = R_average;
+        *(imageBits + pixel[3] + 1) = G_average;
+        *(imageBits + pixel[3] + 2) = B_average;
+    }
+}
+
+void median_cut(uchar* imageBits, std::vector<std::vector<int>> bucket, int numColors) {
+    int depth = (int)(log2(numColors));
+
+    std::vector<std::vector<std::vector<int>>> buckets;
+    buckets.push_back(bucket);
+
+    for (int i = 0; i < depth; i++) {
+        std::vector<std::vector<std::vector<int>>> new_buckets;
+
+        for (auto bucket: buckets) {
+            int R_min = 255, G_min = 255, B_min = 255;
+            int R_max = 0, G_max = 0, B_max = 0;
+
+            for (auto pixel: bucket) {
+                if (pixel[0] > R_max)
+                    R_max = pixel[0];
+
+                if (pixel[1] > G_max)
+                    G_max = pixel[1];
+
+                if (pixel[2] > B_max)
+                    B_max = pixel[2];
+
+                if (pixel[0] < R_min)
+                    R_min = pixel[0];
+
+                if (pixel[1] < G_min)
+                    G_min = pixel[1];
+
+                if (pixel[2] < B_min)
+                    B_min = pixel[2];
+            }
+
+            int R_range = R_max - R_min;
+            int G_range = G_max - G_min;
+            int B_range = B_max - B_min;
+
+            int colorBiggestRange;
+
+            if (R_range >= G_range && R_range >= B_range)
+                colorBiggestRange = 0;
+            else if (G_range >= R_range && G_range >= B_range)
+                colorBiggestRange = 1;
+            else
+                colorBiggestRange = 2;
+
+            std::sort(bucket.begin(), bucket.end(),
+                      [colorBiggestRange](const std::vector<int>& a, const std::vector<int>& b) {
+              return a[colorBiggestRange] < b[colorBiggestRange];
+            });
+
+            std::size_t const medianIndex = (bucket.size() + 1) / 2;
+
+            std::vector<std::vector<int>> split_lo(bucket.begin(), bucket.begin() + medianIndex);
+            std::vector<std::vector<int>> split_hi(bucket.begin() + medianIndex, bucket.end());
+
+            new_buckets.push_back(split_lo);
+            new_buckets.push_back(split_hi);
+        }
+        buckets = new_buckets;
+    }
+
+    for (auto buctet: buckets)
+        pixels_quantize(imageBits, bucket);
+}
+
+void median_cut_rec(uchar* imageBits, std::vector<std::vector<int>> bucket, int depth) {
+    if (depth == 0) {
+        pixels_quantize(imageBits, bucket);
+        return;
+    }
+
+    int R_min = 255, G_min = 255, B_min = 255;
+    int R_max = 0, G_max = 0, B_max = 0;
+
+    for (auto pixel: bucket) {
+        if (pixel[0] > R_max)
+            R_max = pixel[0];
+
+        if (pixel[1] > G_max)
+            G_max = pixel[1];
+
+        if (pixel[2] > B_max)
+            B_max = pixel[2];
+
+        if (pixel[0] < R_min)
+            R_min = pixel[0];
+
+        if (pixel[1] < G_min)
+            G_min = pixel[1];
+
+        if (pixel[2] < B_min)
+            B_min = pixel[2];
+    }
+
+    int R_range = R_max - R_min;
+    int G_range = G_max - G_min;
+    int B_range = B_max - B_min;
+
+    int colorBiggestRange;
+
+    if (R_range >= G_range && R_range >= B_range)
+        colorBiggestRange = 0;
+    else if (G_range >= R_range && G_range >= B_range)
+        colorBiggestRange = 1;
+    else
+        colorBiggestRange = 2;
+
+    std::sort(bucket.begin(), bucket.end(),
+              [colorBiggestRange](const std::vector<int>& a, const std::vector<int>& b) {
+      return a[colorBiggestRange] < b[colorBiggestRange];
+    });
+
+    std::size_t const medianIndex = (bucket.size() + 1) / 2;
+
+    std::vector<std::vector<int>> split_lo(bucket.begin(), bucket.begin() + medianIndex);
+    std::vector<std::vector<int>> split_hi(bucket.begin() + medianIndex, bucket.end());
+
+    median_cut_rec(imageBits, split_lo, depth - 1);
+    median_cut_rec(imageBits, split_hi, depth - 1);
+}
+
+void PhotoApp::on_medianCutButton_clicked()
+{
+    int K = this->ui->medianCutBoxK->value();
+
+    QImage image = currentImage._QPixmap.toImage();
+    uchar* bits = image.bits();
+    uchar* bitsEnd = bits + image.sizeInBytes();
+
+    std::vector<std::vector<int>> bucket;
+    int i = 0;
+
+    while (bits < bitsEnd) {
+        std::vector<int> pixel;
+        pixel.push_back(*(bits));      // R
+        pixel.push_back(*(bits + 1));  // G
+        pixel.push_back(*(bits + 2));  // B
+        pixel.push_back(i);            // index
+
+        bucket.push_back(pixel);
+
+        bits += 4;
+        i += 4;
+    }
+
+    bits = image.bits();
+    median_cut_rec(bits, bucket, K);
+    //median_cut(bits, bucket, pow(K, 2));
     currentImage._QPixmap = QPixmap::fromImage(image);
     updateChangedPhoto();
 }
