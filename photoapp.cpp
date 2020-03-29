@@ -549,12 +549,6 @@ void pixels_quantize(uchar* imageBits, std::vector<std::vector<int>> bucket) {
     int G_average = G_sum / bucket.size();
     int B_average = B_sum / bucket.size();
 
-    qDebug() << Q_FUNC_INFO << bucket.size();
-    qDebug() << Q_FUNC_INFO << R_average;
-    qDebug() << Q_FUNC_INFO << G_average;
-    qDebug() << Q_FUNC_INFO << B_average;
-    qDebug() << "DUPA";
-
     for (auto pixel: bucket) {
         *(imageBits + pixel[3] + 0) = R_average;
         *(imageBits + pixel[3] + 1) = G_average;
@@ -564,14 +558,21 @@ void pixels_quantize(uchar* imageBits, std::vector<std::vector<int>> bucket) {
 
 void median_cut(uchar* imageBits, std::vector<std::vector<int>> bucket, int numColors) {
     int depth = (int)(log2(numColors));
+    int colorIndex = 1;
 
     std::vector<std::vector<std::vector<int>>> buckets;
     buckets.push_back(bucket);
 
-    for (int i = 0; i < depth; i++) {
+    for (int i = -1; i < depth; i++) {
         std::vector<std::vector<std::vector<int>>> new_buckets;
 
         for (auto bucket: buckets) {
+            if (colorIndex >= numColors) {
+                new_buckets.push_back(bucket);
+                continue;
+            }
+            colorIndex++;
+
             int R_min = 255, G_min = 255, B_min = 255;
             int R_max = 0, G_max = 0, B_max = 0;
 
@@ -617,15 +618,12 @@ void median_cut(uchar* imageBits, std::vector<std::vector<int>> bucket, int numC
 
             std::vector<std::vector<int>> split_lo(bucket.begin(), bucket.begin() + medianIndex);
             std::vector<std::vector<int>> split_hi(bucket.begin() + medianIndex, bucket.end());
-
             new_buckets.push_back(split_lo);
             new_buckets.push_back(split_hi);
         }
 
         buckets.clear();
         buckets.assign(new_buckets.begin(), new_buckets.end());
-        qDebug() << Q_FUNC_INFO << buckets.size();
-        //buckets = new_buckets;
     }
 
     for (std::vector<std::vector<int>> elem: buckets)
