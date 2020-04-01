@@ -745,3 +745,132 @@ void PhotoApp::on_pushButtonMedianCut2_clicked()
     currentImage._QPixmap = QPixmap::fromImage(image);
     updateChangedPhoto();
 }
+
+void PhotoApp::on_YCrCbpushButton_clicked()
+{
+    int K = this->ui->spinBoxYCrCb->value();
+    double splitY = (235 - 16) / (K - 1);
+    double splitCrCb = (240 - 16) / (K - 1);
+
+    std::vector<int> Y;
+    std::vector<int> Cb;
+    std::vector<int> Cr;
+
+/*
+    double split = 255 / (K - 1);
+    std::vector<int> greyVals;
+    greyVals.push_back(0);
+    for (int i = 1; i <= K - 2; i++)
+        greyVals.push_back((int)split * i);
+    greyVals.push_back(255);
+*/
+
+    std::vector<int> midValuesY;
+    std::vector<int> midValuesCb;
+    std::vector<int> midValuesCr;
+
+    midValuesY.push_back(16);
+    for (int i = 1; i <= K - 2; i++)
+        midValuesY.push_back((int)splitY * i);
+    midValuesY.push_back(235);
+
+    midValuesCr.push_back(16);
+    for (int i = 1; i <= K - 2; i++)
+        midValuesCr.push_back((int)splitCrCb * i);
+    midValuesCr.push_back(240);
+
+    midValuesCb = midValuesCr;
+
+    QImage image = currentImage._QPixmap.toImage();
+    uchar* bits = image.bits();
+    uchar* bitsEnd = bits + image.sizeInBytes();
+
+    while (bits < bitsEnd) {
+        int Y = (int)(16.0 + (1.0/256.0 * (65.738 * (*bits) + 129.057 * (*bits + 1) + 25.064 * (*bits + 2)) ));
+        int Cb = (int)(128.0 + (1.0/256.0 * (-37.945 * (*bits) -74.494 * (*bits + 1) + 112.439 * (*bits + 2)) ));
+        int Cr = (int)(128.0 + (1.0/256.0 * (112.439 * (*bits) -94.154 * (*bits + 1) + -18.285 * (*bits + 2)) ));
+
+        (*bits) = Y;
+        *(bits + 1) = Cb;
+        *(bits + 2) = Cr;
+        bits += 4;
+    }
+
+    for (unsigned int channel = 0; channel < 3; channel++) {
+        std::vector<int> averages;
+
+        std::vector<int> greyVals;
+        if (channel == 0)
+            greyVals = midValuesY;
+        else if (channel == 1)
+            greyVals = midValuesCb;
+        else
+            greyVals = midValuesCr;
+
+        // calulate thersholds of each split
+        for (int i = 0; i < K - 1; i++) {
+            int counter = 0;
+            long long sum = 0;
+
+            uchar* bits = image.bits();
+            uchar* bitsEnd = bits + image.sizeInBytes();
+            bits += channel;
+
+            while (bits < bitsEnd) {
+                if (((*bits) >= greyVals[i]) && (((*bits) < greyVals[i + 1]) || (((*bits) <= greyVals[i + 1]) && (i == K - 2)) )) {
+                    counter++;
+                    sum += (*bits);
+                }
+
+                bits += 4;
+            }
+
+            int average;
+            if (counter < 1)
+                average = greyVals[i];
+            else
+                average = sum / counter;
+
+            averages.push_back(average);
+        }
+
+        uchar* bits = image.bits();
+        uchar* bitsEnd = bits + image.sizeInBytes();
+        bits += channel;
+
+        while (bits < bitsEnd) {
+            for (int i = 0; i < K - 1; i++) {
+                if (((*bits) >= greyVals[i]) && (((*bits) < greyVals[i + 1]) || (((*bits) <= greyVals[i + 1]) && (i == K - 2)) )) {
+                    if ((*bits) <= averages[i]) {
+                        (*bits) = greyVals[i];
+                        break;
+                    } else {
+                        (*bits) = greyVals[i + 1];
+                        break;
+                    }
+                }
+            }
+            bits += 4;
+        }
+
+    }
+
+    bits = image.bits();
+    bitsEnd = bits + image.sizeInBytes();
+
+    while (bits < bitsEnd) {
+        int R = qBound(0, (int)((298.082 * (*bits) + 408.583 * (*bits + 2)) / 256.0 - 222.921), 255);
+        int G = qBound(0, (int)((298.082 * (*bits) - 100.291 * (*bits + 1) - 208.120 * (*bits + 2) ) / 256.0 - 222.921), 255);
+        int B = qBound(0, (int)((298.082 * (*bits) + 516.412 * (*bits + 1)) / 256.0 - 276.836), 255);
+
+        (*bits) = R;
+        *(bits + 1) = G;
+        *(bits + 2) = B;
+
+        bits += 4;
+    }
+
+
+    currentImage._QPixmap = QPixmap::fromImage(image);
+    updateChangedPhoto();
+}
