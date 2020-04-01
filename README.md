@@ -2,7 +2,7 @@
 This application has several filter applied. As a result user can preview the how each filter effects the image and save changed image into a new file.
 
 ## The usage of the application with sample image below
-![Sample application usage screenshot](data/Screenshot 2020-04-01 at 19.02.38.png)
+![Sample application usage screenshot](data/Image-Gallery-screenshot.jpg?raw=True)
 
 ## List of functionalities 
  1. Functional Filters applied:
